@@ -35,7 +35,7 @@ if uploaded_file is not None:
     if uploaded_file.type == "text/plain":
         context = uploaded_file.read().decode("utf-8")
     elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        doc = docx.Document(uploaded_file)
+        doc = Document(uploaded_file)
         full_text = [para.text for para in doc.paragraphs]
         context = "\n".join(full_text)
 
@@ -111,4 +111,5 @@ if st.button("❓ Get Answer"):
 
             except Exception as e:
                 st.error(f"Error during QA: {e}")
+
 
