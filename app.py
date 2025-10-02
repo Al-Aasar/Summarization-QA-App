@@ -1,6 +1,7 @@
 import streamlit as st
 from transformers import pipeline
-import docx  # pip install python-docx
+from docx import Document
+
 
 st.set_page_config(page_title="Summarization & QA App", page_icon="🧠", layout="wide")
 
@@ -110,3 +111,4 @@ if st.button("❓ Get Answer"):
 
             except Exception as e:
                 st.error(f"Error during QA: {e}")
+
