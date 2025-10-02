@@ -1,5 +1,6 @@
 import streamlit as st
 from transformers import pipeline
+import docx  # pip install python-docx
 
 st.set_page_config(page_title="Summarization & QA App", page_icon="🧠", layout="wide")
 
@@ -23,13 +24,25 @@ summarizer = load_summarizer()
 qa_model = load_qa()
 
 st.title("📰🔎 Summarization + Question Answering")
-st.markdown("Paste your article below. You can summarize it and then ask questions either on the original text or the summary.")
+st.markdown("Paste your article or upload a file (TXT/DOCX).")
+
+# ----------------- Upload or paste -----------------
+uploaded_file = st.file_uploader("Upload a TXT or DOCX file", type=["txt", "docx"])
+context = ""
+
+if uploaded_file is not None:
+    if uploaded_file.type == "text/plain":
+        context = uploaded_file.read().decode("utf-8")
+    elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        doc = docx.Document(uploaded_file)
+        full_text = [para.text for para in doc.paragraphs]
+        context = "\n".join(full_text)
 
 st.subheader("Article (Context)")
-context = st.text_area("Paste article here...", height=350)
+text_area_content = st.text_area("Paste article here or use uploaded file...", value=context, height=350)
 
-if context.strip() == "":
-    st.info("Paste the article text above to enable summarization and Q&A.")
+if text_area_content.strip() == "":
+    st.info("Paste the article or upload a file to enable summarization and Q&A.")
 
 st.subheader("Summarization Settings")
 min_len, max_len = st.slider(
@@ -43,15 +56,17 @@ do_sample = st.checkbox("Use sampling (do_sample)", value=False)
 
 # ----------------- Summarization -----------------
 if st.button("📝 Summarize"):
-    if context.strip() == "":
-        st.warning("Please paste the article text first.")
+    if text_area_content.strip() == "":
+        st.warning("Please provide article text first.")
     elif summarizer is None:
         st.error("Summarizer model not available.")
     else:
         with st.spinner("Summarizing... ⏳"):
             try:
-                input_text = context
-                summary_output = summarizer(input_text, max_length=int(max_len), min_length=int(min_len), do_sample=do_sample)
+                summary_output = summarizer(
+                    text_area_content, max_length=int(max_len),
+                    min_length=int(min_len), do_sample=do_sample
+                )
                 summary_text = summary_output[0]["summary_text"]
                 st.session_state["last_summary"] = summary_text
             except Exception as e:
@@ -69,7 +84,7 @@ question = st.text_input("Type your question here...")
 context_source = st.radio("Which text to use for answering?", ("Full text", "Summary"))
 
 if st.button("❓ Get Answer"):
-    if question.strip() == "" or context.strip() == "":
+    if question.strip() == "" or text_area_content.strip() == "":
         st.warning("Please provide both the text and a question.")
     elif qa_model is None:
         st.error("QA model not available.")
@@ -82,7 +97,7 @@ if st.button("❓ Get Answer"):
                         st.warning("No summary generated yet. Please summarize first or select 'Full text'.")
                         st.stop()
                 else:
-                    ctx = context
+                    ctx = text_area_content
 
                 result = qa_model(question=question, context=ctx)
                 answer = result.get("answer", "")
