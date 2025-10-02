@@ -38,6 +38,7 @@ with col2:
     st.subheader("Summarization Settings")
     min_len = st.number_input("Min length (approx. chars)", min_value=10, max_value=1000, value=30, step=10)
     max_len = st.number_input("Max length (approx. chars)", min_value=20, max_value=2000, value=130, step=10)
+    do_sample = st.checkbox("Use sampling (do_sample)", value=False)
     st.markdown("---")
     st.subheader("Ask a Question")
     question = st.text_input("Type your question here...")
