@@ -85,6 +85,10 @@ torch
 
 ---
 
-## 📜 License
+## 👨‍💻 Author
 
-This project is open-source and available under the MIT License.
+**Muhammad Al-Aasar**  
+🎓 B.Sc. in Computer Science, Tanta University  
+🔗 [LinkedIn Profile](https://www.linkedin.com/in/muhammad-al-aasar-455b78329)  
+📞 +20 1015088811
+
